@@ -15,7 +15,8 @@ sudo apt-get install -y \
     mc \
     curl \
     net-tools \
-    strongswan
+    strongswan \
+    iptables-persistent
 
 #Reconfigure sysctl
 sudo tee /etc/sysctl.d/router.conf << EOF
@@ -47,39 +48,8 @@ sudo ln -s /etc/apparmor.d/usr.lib.ipsec.stroke /etc/apparmor.d/disable/
 sudo sed -i "s+# install_routes = yes+install_routes = no+g" /etc/strongswan.d/charon.conf
 
 sudo iptables -t nat -A POSTROUTING -s 10.0.0.0/8 -d 192.168.0.128/25 -j MASQUERADE
+sudo iptables-save | sudo tee /etc/iptables/rules.v4
 
 sudo ipsec restart
 sudo systemctl enable strongswan-starter
 sudo ipsec up azure
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-sudo tee /etc/ipsec.conf << EOF
-config setup
-conn azure
-    leftupdown=/usr/local/sbin/ipsec-notify.sh # Script to create a VTI and configure the necessary routing when doing "ipsec up azure" (and remove changes when doing "ipsec down azure"
-    authby=secret
-    type=tunnel
-    left=$HomeIP # My Public IP address
-    leftsubnet=192.168.0.128/25 # My IP address space / protected network(s)
-    right=$AzureIP #Azure Dynamic Gateway
-    rightsubnet=10.0.0.0/8 #Azure Vnet prefixes, coma separated list
-    auto=route
-    keyexchange=ikev2 # Mandatory for Dynamic / Route-based gateway
-EOF
