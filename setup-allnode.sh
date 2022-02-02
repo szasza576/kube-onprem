@@ -15,7 +15,8 @@ sudo apt-get install -y \
     mc \
     curl \
     software-properties-common \
-    net-tools
+    net-tools \
+    nfs-common
 
 #Install kubelet, kubeadm, kubectl
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
