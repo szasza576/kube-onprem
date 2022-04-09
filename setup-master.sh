@@ -52,14 +52,6 @@ data:
       - $IngressRange
 EOF
 
-# Install NFS-provisioner
-helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
-helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
-    --set nfs.server=192.168.0.31 \
-    --set nfs.path=/export/K8s-cluster-share \
-    --set storageClass.name=default \
-    --set storageClass.defaultClass=true
-
 # Install Helm
 curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
 
@@ -68,4 +60,14 @@ sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
 
 sudo apt-get update
 sudo apt-get install -y helm
+
+# Install NFS-provisioner
+helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
+    -n kube-system \
+    --set nfs.server=192.168.0.31 \
+    --set nfs.path=/export/K8s-cluster-share \
+    --set storageClass.name=default \
+    --set storageClass.defaultClass=true
+
 
