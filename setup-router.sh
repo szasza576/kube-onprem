@@ -1,8 +1,8 @@
 #!/bin/bash
 
-PSK="testkey123"
-HomeIP="188.6.114.113"
-AzureIP="20.107.68.29"
+PSK="vpnkey123"
+HomeIP="84.3.131.95"
+AzureIP="20.229.26.10"
 
 #General update
 sudo apt-get update

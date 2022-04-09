@@ -1,6 +1,6 @@
 #!/bin/bash
 
-K8sVersion="1.21.8-00"
+K8sVersion="1.21.11-00"
 
 #General update
 sudo apt-get update
@@ -33,17 +33,23 @@ sudo sed -i '/swap/ s/^\(.*\)$/#\1/g' /etc/fstab
 sudo swapoff -a
 
 #Configure hosts file and routes
-echo "192.168.0.128 kubemaster" | sudo tee -a /etc/hosts
-echo "192.168.0.129 kubenode" | sudo tee -a /etc/hosts
+echo "192.168.0.130 kubemaster" | sudo tee -a /etc/hosts
+echo "192.168.0.131 kubenode" | sudo tee -a /etc/hosts
 
-sudo ip route add 10.0.0.0/8 via 192.168.0.130
+sudo ip route add 10.0.0.0/8 via 192.168.0.128
+#Or edit the netplan file
+# sudoedit /etc/netplan/00-installer-config.yaml
+# add this:
+#       routes:
+#       - to: 10.0.0.0/8
+#         via: 192.168.0.128
 
 
 #Enable kernel modules and setup sysctl
 sudo modprobe overlay
 sudo modprobe br_netfilter
 
-sudo tee /etc/sysctl.d/kubernetes.conf<<EOF
+sudo tee /etc/sysctl.d/kubernetekubs.conf<<EOF
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
 net.ipv4.ip_forward = 1
