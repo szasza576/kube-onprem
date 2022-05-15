@@ -3,11 +3,11 @@
 K8sVersion="1.21.11-00"
 
 #General update
-sudo apt-get update
-sudo apt-get upgrade -y
+sudo apt update
+sudo apt upgrade -y
 
 #Install base tools
-sudo apt-get install -y \
+sudo apt install -y \
     apt-transport-https \
     ca-certificates \
     gnupg2 \
@@ -65,8 +65,8 @@ echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io
 
 sudo mkdir -p /etc/systemd/system/docker.service.d
 sudo tee /etc/docker/daemon.json <<EOF
