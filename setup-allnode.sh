@@ -53,6 +53,7 @@ sudo tee /etc/sysctl.d/kubernetekubs.conf<<EOF
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
 net.ipv4.ip_forward = 1
+fs.inotify.max_user_instances=524288
 EOF
 
 sudo sysctl --system
