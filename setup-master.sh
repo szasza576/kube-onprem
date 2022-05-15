@@ -19,7 +19,6 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 kubectl taint nodes kubemaster node-role.kubernetes.io/master-
 
-
 #Configre Calico as network plugin
 kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
 
@@ -52,22 +51,41 @@ data:
       - $IngressRange
 EOF
 
+
 # Install Helm
 curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
 
 echo "deb https://baltocdn.com/helm/stable/debian/ all main" | \
 sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
 
-sudo apt-get update
-sudo apt-get install -y helm
+sudo apt update
+sudo apt install -y helm
+
+
+# Setup NFS share if needed
+sudo apt install -y nfs-kernel-server
+sudo mkdir -p /mnt/k8s-pv-data
+sudo chown -R nobody:nogroup /mnt/k8s-pv-data/
+sudo chmod 777 /mnt/k8s-pv-data/
+
+sudo tee -a /etc/exports<<EOF
+/mnt/k8s-pv-data  192.168.0.128/25(rw,sync,no_subtree_check)
+EOF
+
+sudo exportfs -a
+sudo systemctl restart nfs-kernel-server
 
 # Install NFS-provisioner
 helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
 helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
     -n kube-system \
-    --set nfs.server=192.168.0.31 \
-    --set nfs.path=/export/K8s-cluster-share \
+    --set nfs.server=192.168.0.128 \
+    --set nfs.path=/mnt/k8s-pv-data \
     --set storageClass.name=default \
     --set storageClass.defaultClass=true
 
+## Install NVIDIA device plugin
+sudo apt install -y nvidia-driver-510 nvidia-cuda-toolkit
 
+kubectl create -f https://github.com/kubernetes/kubernetes/raw/master/cluster/addons/device-plugins/nvidia-gpu/daemonset.yaml
+kubectl label nodes kubemaster cloud.google.com/gke-accelerator=gpu
